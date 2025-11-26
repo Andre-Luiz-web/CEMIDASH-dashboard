@@ -1,0 +1,230 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Área da coordenação{% endblock %}
+{% block page_heading %}Área da coordenação{% endblock %}
+{% block page_subheading %}Gerencie planilhas, cadastre professores e acompanhe os acessos{% endblock %}
+
+{% block extra_styles %}
+.coordenacao-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+.panel {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 26px;
+    box-shadow: 0 28px 55px -48px rgba(15, 23, 42, 0.58);
+    display: grid;
+    gap: 18px;
+}
+.panel h3 {
+    margin: 0;
+    font-size: 18px;
+}
+.panel p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+.panel form {
+    display: grid;
+    gap: 16px;
+}
+.panel label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+}
+.panel input[type="file"],
+.panel input[type="text"],
+.panel input[type="email"],
+.panel input[type="password"],
+.panel select {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: #fff;
+    font-size: 14px;
+}
+.panel button {
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    justify-self: flex-start;
+    box-shadow: 0 20px 36px -24px rgba(37, 99, 235, 0.7);
+}
+.files-card,
+.professores-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 24px 50px -40px rgba(15, 23, 42, 0.6);
+}
+.files-card ul,
+.professores-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+}
+.files-card li,
+.professores-card li {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(148, 163, 184, 0.18);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+}
+.muted { color: var(--muted); font-size: 13px; }
+.checkbox-list {
+    display: grid;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 14px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: rgba(241, 245, 249, 0.8);
+}
+.checkbox-list label {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text);
+}
+.checkbox-list input {
+    accent-color: var(--accent);
+}
+{% endblock %}
+
+{% block content %}
+    <section class="coordenacao-grid">
+        <article class="panel">
+            <div>
+                <h3>Enviar planilha</h3>
+                <p>Carregue um arquivo .xlsx com os resultados atualizados. O dashboard será recalculado automaticamente.</p>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="upload">
+                <label>
+                    {{ upload_form.arquivo.label }}
+                    {{ upload_form.arquivo }}
+                    {% for error in upload_form.arquivo.errors %}
+                        <span class="muted" style="color:#ef4444;">{{ error }}</span>
+                    {% endfor %}
+                </label>
+                <button type="submit">Enviar planilha</button>
+            </form>
+        </article>
+
+        <article class="panel">
+            <div>
+                <h3>Cadastrar professor</h3>
+                <p>Crie um novo usuário com acesso restrito às turmas selecionadas.</p>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="criar_professor">
+                <label>
+                    {{ professor_form.username.label }}
+                    {{ professor_form.username }}
+                    {{ professor_form.username.errors }}
+                </label>
+                <label>
+                    {{ professor_form.first_name.label }}
+                    {{ professor_form.first_name }}
+                    {{ professor_form.first_name.errors }}
+                </label>
+                <label>
+                    {{ professor_form.last_name.label }}
+                    {{ professor_form.last_name }}
+                    {{ professor_form.last_name.errors }}
+                </label>
+                <label>
+                    {{ professor_form.email.label }}
+                    {{ professor_form.email }}
+                    {{ professor_form.email.errors }}
+                </label>
+                <label>
+                    {{ professor_form.password1.label }}
+                    {{ professor_form.password1 }}
+                    {{ professor_form.password1.errors }}
+                </label>
+                <label>
+                    {{ professor_form.password2.label }}
+                    {{ professor_form.password2 }}
+                    {{ professor_form.password2.errors }}
+                </label>
+                <label>
+                    <span>Turmas com acesso</span>
+                    <div class="checkbox-list">
+                        {{ professor_form.turmas }}
+                        {% if not tem_turmas %}
+                            <span class="muted">Nenhuma turma disponível. Envie uma planilha para habilitar.</span>
+                        {% endif %}
+                    </div>
+                    {% for error in professor_form.turmas.errors %}
+                        <span class="muted" style="color:#ef4444;">{{ error }}</span>
+                    {% endfor %}
+                </label>
+                <button type="submit">Criar professor</button>
+            </form>
+        </article>
+    </section>
+
+    <section class="files-card" style="margin-bottom: 28px;">
+        <h3>Planilhas disponíveis</h3>
+        {% if planilhas %}
+            <ul>
+                {% for arquivo in planilhas %}
+                    <li>
+                        <span>{{ arquivo }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">Nenhuma planilha enviada até o momento.</p>
+        {% endif %}
+    </section>
+
+    <section class="professores-card">
+        <h3>Professores cadastrados</h3>
+        {% if professores %}
+            <ul>
+                {% for perfil in professores %}
+                    <li>
+                        <div>
+                            <strong>{{ perfil.usuario.get_full_name|default:perfil.usuario.username }}</strong>
+                            <div class="muted">{{ perfil.usuario.email|default:"—" }}</div>
+                        </div>
+                        <div class="muted">
+                            {% with turmas=perfil.turmas.all %}
+                                {% if turmas %}
+                                    {{ turmas|join:", " }}
+                                {% else %}
+                                    Nenhuma turma
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">Nenhum professor cadastrado ainda.</p>
+        {% endif %}
+    </section>
+{% endblock %}

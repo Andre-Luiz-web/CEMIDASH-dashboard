@@ -1,0 +1,152 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Meu perfil{% endblock %}
+{% block page_heading %}Meu perfil{% endblock %}
+{% block page_subheading %}Atualize suas informações pessoais e mantenha a foto de identificação{% endblock %}
+
+{% block extra_styles %}
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+.profile-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 26px;
+    box-shadow: 0 28px 55px -48px rgba(15, 23, 42, 0.58);
+}
+.profile-card h3 {
+    margin: 0 0 14px;
+    font-size: 18px;
+}
+.profile-card form {
+    display: grid;
+    gap: 16px;
+}
+.profile-card label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+}
+.profile-card input[type="text"],
+.profile-card input[type="email"],
+.profile-card input[type="file"] {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    font-size: 14px;
+    background: #fff;
+}
+.profile-card button {
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    justify-self: flex-start;
+    cursor: pointer;
+    box-shadow: 0 16px 32px -24px rgba(37, 99, 235, 0.7);
+}
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid rgba(37, 99, 235, 0.25);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-soft);
+    font-size: 32px;
+    color: var(--accent);
+    margin-bottom: 18px;
+}
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.turmas-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 20px 45px -36px rgba(15, 23, 42, 0.55);
+}
+.turmas-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+.turmas-card li {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.15);
+    font-size: 14px;
+}
+.muted { color: var(--muted); font-size: 13px; }
+{% endblock %}
+
+{% block content %}
+    <section class="profile-grid">
+        <article class="profile-card">
+            <h3>Dados pessoais</h3>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="form-id" value="perfil">
+                <div class="avatar-preview">
+                    {% if profile_form.instance.avatar %}
+                        <img src="{{ profile_form.instance.avatar.url }}" alt="Foto atual">
+                    {% else %}
+                        {{ request.user.get_short_name|default:request.user.username|slice:":2"|upper }}
+                    {% endif %}
+                </div>
+                <label>
+                    {{ user_form.first_name.label }}
+                    {{ user_form.first_name }}
+                    {{ user_form.first_name.errors }}
+                </label>
+                <label>
+                    {{ user_form.last_name.label }}
+                    {{ user_form.last_name }}
+                    {{ user_form.last_name.errors }}
+                </label>
+                <label>
+                    {{ user_form.email.label }}
+                    {{ user_form.email }}
+                    {{ user_form.email.errors }}
+                </label>
+                <label>
+                    {{ profile_form.avatar.label }}
+                    {{ profile_form.avatar }}
+                    {{ profile_form.avatar.errors }}
+                    <span class="muted">Formatos aceitos: PNG, JPG. Tamanho máximo 5 MB.</span>
+                </label>
+                <button type="submit">Salvar alterações</button>
+            </form>
+        </article>
+        <article class="turmas-card">
+            <h3>Turmas autorizadas</h3>
+            {% if is_coordinator %}
+                <p class="muted">Como coordenador, você visualiza todas as turmas cadastradas.</p>
+            {% else %}
+                {% if turmas_autorizadas %}
+                    <ul>
+                        {% for turma in turmas_autorizadas %}
+                            <li>{{ turma.nome }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="muted">Nenhuma turma associada ao seu perfil no momento.</p>
+                {% endif %}
+            {% endif %}
+            <p class="muted" style="margin-top: 16px;">A atribuição de turmas é gerenciada pela coordenação.</p>
+        </article>
+    </section>
+{% endblock %}

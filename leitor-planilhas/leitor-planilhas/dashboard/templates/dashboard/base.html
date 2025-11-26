@@ -1,0 +1,307 @@
+{% load static dashboard_extras %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CEMIDash{% endblock %}</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f1f5f9;
+            --sidebar: #0f172a;
+            --sidebar-hover: rgba(148, 163, 184, 0.18);
+            --sidebar-active: rgba(59, 130, 246, 0.25);
+            --sidebar-text: #e2e8f0;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.1);
+            --text: #0f172a;
+            --muted: #64748b;
+            --card: #ffffff;
+            --divider: rgba(15, 23, 42, 0.08);
+            --radius: 18px;
+        }
+        * {
+            box-sizing: border-box;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #111827 0%, #1f2937 60%, #0f172a 100%);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            padding: 28px 22px;
+            gap: 32px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+        .brand span {
+            color: var(--accent);
+        }
+        nav {
+            display: grid;
+            gap: 8px;
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: inherit;
+            text-decoration: none;
+            transition: background 0.2s ease, transform 0.2s ease;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+        .menu-link svg {
+            width: 18px;
+            height: 18px;
+            opacity: 0.82;
+        }
+        .menu-link:hover {
+            background: var(--sidebar-hover);
+            transform: translateX(2px);
+        }
+        .menu-link.active {
+            background: var(--sidebar-active);
+            color: #f8fafc;
+        }
+        .menu-section {
+            margin-top: auto;
+            display: grid;
+            gap: 8px;
+        }
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar {
+            padding: 24px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .topbar-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .topbar-info span {
+            font-size: 14px;
+            color: var(--muted);
+        }
+        .topbar-info strong {
+            font-size: 18px;
+        }
+        .avatar-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            border: 2px solid rgba(37, 99, 235, 0.25);
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .avatar-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .page {
+            flex: 1;
+            padding: 0 36px 48px;
+        }
+        .messages {
+            list-style: none;
+            margin: 0 0 16px;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+        .messages li {
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            color: #0f172a;
+            font-size: 14px;
+        }
+        .messages li.success {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.25);
+            color: #14532d;
+        }
+        .messages li.error {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.25);
+            color: #7f1d1d;
+        }
+        .messages li.warning {
+            background: rgba(250, 204, 21, 0.12);
+            border-color: rgba(250, 204, 21, 0.25);
+            color: #78350f;
+        }
+        @media (max-width: 1024px) {
+            .layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                padding: 20px 24px;
+                gap: 18px;
+                overflow-x: auto;
+            }
+            nav {
+                flex-direction: row;
+                display: flex;
+                gap: 12px;
+            }
+            .menu-link {
+                padding: 10px 16px;
+            }
+            .menu-section {
+                margin-top: 0;
+                flex-direction: row;
+                display: flex;
+            }
+            .content-wrapper {
+                width: 100%;
+            }
+            .page {
+                padding: 0 22px 36px;
+            }
+            .topbar {
+                padding: 24px 22px;
+            }
+        }
+        {% block extra_styles %}{% endblock %}
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <span>CEMI</span>Dash
+            </div>
+            {% with current=request.resolver_match.url_name %}
+                <nav>
+                    <a href="{% url 'dashboard:visual' %}"
+                       class="menu-link {% if current == 'visual' %}active{% endif %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                            <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+                        </svg>
+                        Dashboard visual
+                    </a>
+                    <a href="{% url 'dashboard:home' %}"
+                       class="menu-link {% if current == 'home' %}active{% endif %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 11l9-8 9 8"></path>
+                            <path d="M9 22V12h6v10"></path>
+                        </svg>
+                        Visão consolidada
+                    </a>
+                    <a href="{% url 'dashboard:questoes' %}"
+                       class="menu-link {% if current == 'questoes' %}active{% endif %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 3v18"></path>
+                            <path d="M5 12h14"></path>
+                            <circle cx="12" cy="12" r="9"></circle>
+                        </svg>
+                        Questões
+                    </a>
+                </nav>
+                <nav>
+                    <a href="{% url 'dashboard:perfil' %}"
+                       class="menu-link {% if current == 'perfil' %}active{% endif %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="7" r="4"></circle>
+                            <path d="M5.5 21a7 7 0 0 1 13 0"></path>
+                        </svg>
+                        Meu perfil
+                    </a>
+                    {% if is_coordinator %}
+                        <a href="{% url 'dashboard:coordenacao' %}"
+                           class="menu-link {% if current == 'coordenacao' %}active{% endif %}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 3l9 4-9 4-9-4 9-4z"></path>
+                                <path d="M3 12l9 4 9-4"></path>
+                                <path d="M3 17l9 4 9-4"></path>
+                            </svg>
+                            Coordenação
+                        </a>
+                    {% endif %}
+                </nav>
+                <div class="menu-section">
+                    <a href="{% url 'dashboard:logout' %}"
+                       class="menu-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <path d="M16 17l5-5-5-5"></path>
+                            <path d="M21 12H9"></path>
+                        </svg>
+                        Sair
+                    </a>
+                </div>
+            {% endwith %}
+        </aside>
+        <div class="content-wrapper">
+            <header class="topbar">
+                {% with profile=request.user|professor_profile %}
+                <div class="topbar-info">
+                    <strong>{% block page_heading %}{% endblock %}</strong>
+                    <span>{% block page_subheading %}{% endblock %}</span>
+                </div>
+                <div class="avatar-thumb">
+                    {% if profile and profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="Avatar do usuário">
+                    {% else %}
+                        {{ request.user.get_short_name|default:request.user.username|slice:":2"|upper }}
+                    {% endif %}
+                </div>
+                {% endwith %}
+            </header>
+            <main class="page">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li class="{{ message.tags }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,38 @@
+Aluno tira abaixo de 2,00 = estado crítico (cor vermelho)
+Aluno tira entre 2,00 e 5,00 = estado de atenção (cor amarelo)
+Aluno tira entre 5,00 e 7,00 = estado Bom (cor verde claro)
+Aluno tira entre 7,00 e 9,00 = estado Ótimo (cor azul)
+Aluno tira acima de 9,00 = estado Excelente (cor azul Escuro)
+
+estrutura de dados Aluno {
+    nome: texto
+    nota: número
+    estado: texto
+    cor: texto
+}
+
+função determinarEstadoEcor(aluno: Aluno) {
+    se (aluno.nota < 2.00) {
+        aluno.estado = "estado crítico"
+        aluno.cor = "vermelho"
+    } senão se (aluno.nota >= 2.00 e aluno.nota < 5.00) {
+        aluno.estado = "estado de atenção"
+        aluno.cor = "amarelo"
+    } senão se (aluno.nota >= 5.00 e aluno.nota < 7.00) {
+        aluno.estado = "estado Bom"
+        aluno.cor = "verde claro"
+    } senão se (aluno.nota >= 7.00 e aluno.nota < 9.00) {
+        aluno.estado = "estado Ótimo"
+        aluno.cor = "azul"
+    } senão {
+        aluno.estado = "estado Excelente"
+        aluno.cor = "azul Escuro"
+    }
+}
+
+ajustes de códiogo
+
+
+Perfis:
+Diretor, coordenador e professor
+Permitir visualizar o estado e a cor dos alunos com base nas notas atribuídas.
