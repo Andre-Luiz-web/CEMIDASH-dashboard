@@ -1,6 +1,7 @@
 # 📊 CEMIDASH – Dashboard Educacional Automatizado
 
 O **CEMIDASH** é um sistema desenvolvido para automatizar a leitura de planilhas de avaliações escolares, processar dados e apresentar resultados organizados através de um dashboard intuitivo.  
+
 O projeto resolve um problema comum em instituições de ensino: **a dependência de planilhas manuais**, que causam atrasos, erros e retrabalho na análise do desempenho estudantil.
 
 Este repositório contém o módulo responsável pela **leitura, processamento e integração de dados** usando **Python + Django**.
